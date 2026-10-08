@@ -158,7 +158,6 @@ export const StorageService = {
 
   addRecent(item: RecentItem): void {
     const recents = this.getRecents();
-    // Keep max 20 recent items
     const filtered = recents.filter(r => r.id !== item.id);
     const updated = [item, ...filtered].slice(0, 20);
     localStorage.setItem(STORAGE_KEYS.RECENTS, JSON.stringify(updated));
@@ -186,17 +185,16 @@ export const StorageService = {
     } else {
       jobs.unshift(job);
     }
-    // Limit stored history to last 30 jobs
     localStorage.setItem(STORAGE_KEYS.QUEUED_JOBS, JSON.stringify(jobs.slice(0, 30)));
   },
 
-  // User Preferences
+  // User Preferences - Default strictly to 'light'
   getPreferences(): { theme: 'light' | 'dark' | 'system'; defaultPrinterId: string } {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-      return data ? JSON.parse(data) : { theme: 'system', defaultPrinterId: 'printer-system' };
+      return data ? JSON.parse(data) : { theme: 'light', defaultPrinterId: 'printer-system' };
     } catch {
-      return { theme: 'system', defaultPrinterId: 'printer-system' };
+      return { theme: 'light', defaultPrinterId: 'printer-system' };
     }
   },
 

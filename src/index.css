@@ -1,39 +1,46 @@
 :root {
-  /* Brand Color Tokens (Deep Wine + Warm Aurora) */
-  --color-wine-deep: #541827;
-  --color-wine-dark: #3D101D;
-  --color-wine-hover: #681F31;
-  --color-orange-warm: #F28B45;
-  --color-orange-glow: rgba(242, 139, 69, 0.25);
-  --color-cream-bg: #FAF7F5;
+  /* Brand Color Tokens (Clean Red Accent System matching PrintU Logo) */
+  --color-brand-red: #C62828;
+  --color-brand-red-hover: #B71C1C;
+  --color-brand-red-subtle: #FFEBEE;
+  --color-brand-red-border: #EF5350;
+  
+  --color-wine-deep: #C62828;
+  --color-wine-dark: #9A0007;
+  --color-wine-hover: #B71C1C;
+  --color-orange-warm: #E53935;
+  --color-orange-glow: rgba(229, 57, 53, 0.2);
+
+  /* Clean Light Theme Surfaces */
+  --color-cream-bg: #F8FAFC;
   --color-surface-white: #FFFFFF;
-  --color-surface-muted: #F3ECE9;
+  --color-surface-muted: #F1F5F9;
   
   /* Text & Border Tokens */
-  --color-text-main: #1F191B;
-  --color-text-muted: #6E6366;
-  --color-text-subtle: #A39699;
-  --color-border: #E8DFDC;
-  --color-border-dark: #3D3336;
+  --color-text-main: #0F172A;
+  --color-text-muted: #475569;
+  --color-text-subtle: #94A3B8;
+  --color-border: #E2E8F0;
+  --color-border-dark: #CBD5E1;
   
   /* Status Colors */
   --color-success: #10B981;
   --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  --color-error: #DC2626;
 
   /* Typography */
   --font-primary: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
   /* Elevation & Shadows */
-  --shadow-sm: 0 1px 3px rgba(61, 16, 29, 0.05);
-  --shadow-md: 0 4px 12px rgba(61, 16, 29, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 12px 28px rgba(61, 16, 29, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 20px var(--color-orange-glow);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 28px rgba(198, 40, 40, 0.1), 0 4px 10px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(229, 57, 53, 0.25);
 
   /* Radius */
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -42,15 +49,15 @@
   --transition-bounce: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Dark Theme Overrides */
+/* Dark Theme (Only if explicitly enabled) */
 [data-theme="dark"] {
-  --color-cream-bg: #1A1214;
-  --color-surface-white: #251B1E;
-  --color-surface-muted: #33262A;
-  --color-text-main: #FAF5F6;
-  --color-text-muted: #B8A8AC;
-  --color-text-subtle: #7A6C70;
-  --color-border: #3D3034;
+  --color-cream-bg: #0F172A;
+  --color-surface-white: #1E293B;
+  --color-surface-muted: #334155;
+  --color-text-main: #F8FAFC;
+  --color-text-muted: #94A3B8;
+  --color-text-subtle: #64748B;
+  --color-border: #334155;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
@@ -92,6 +99,24 @@ p {
   color: var(--color-text-muted);
 }
 
+/* Form Controls (Select & Inputs) */
+select, input[type="text"], input[type="number"] {
+  background-color: var(--color-surface-white) !important;
+  color: var(--color-text-main) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0.65rem 0.85rem !important;
+  font-family: var(--font-primary) !important;
+  font-size: 0.9rem !important;
+  outline: none !important;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast) !important;
+}
+
+select:focus, input[type="text"]:focus, input[type="number"]:focus {
+  border-color: var(--color-brand-red) !important;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15) !important;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -111,15 +136,17 @@ p {
   text-decoration: none;
 }
 
+/* Primary Red Button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-wine-deep) 0%, var(--color-wine-dark) 100%);
+  background: var(--color-brand-red);
   color: #FFFFFF;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.25);
+  border: 1px solid var(--color-brand-red);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-wine-hover) 0%, var(--color-wine-deep) 100%);
-  box-shadow: var(--shadow-lg), var(--color-orange-glow);
+  background: var(--color-brand-red-hover);
+  box-shadow: 0 6px 16px rgba(198, 40, 40, 0.35);
   transform: translateY(-1px);
 }
 
@@ -127,27 +154,29 @@ p {
   transform: translateY(0);
 }
 
+/* Secondary Button with Subtle Red Outline */
 .btn-secondary {
   background: var(--color-surface-white);
   color: var(--color-text-main);
-  border-color: var(--color-border);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-  background: var(--color-surface-muted);
-  border-color: var(--color-text-subtle);
+  background: var(--color-brand-red-subtle);
+  color: var(--color-brand-red);
+  border-color: var(--color-brand-red-border);
   transform: translateY(-1px);
 }
 
 .btn-orange {
-  background: var(--color-orange-warm);
+  background: var(--color-brand-red);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px var(--color-orange-glow);
+  box-shadow: 0 4px 14px rgba(198, 40, 40, 0.25);
 }
 
 .btn-orange:hover {
-  background: #E07B37;
+  background: var(--color-brand-red-hover);
   transform: translateY(-1px);
 }
 
@@ -157,8 +186,8 @@ p {
 }
 
 .btn-ghost:hover {
-  background: var(--color-surface-muted);
-  color: var(--color-text-main);
+  background: var(--color-brand-red-subtle);
+  color: var(--color-brand-red);
 }
 
 .btn-sm {
@@ -168,9 +197,9 @@ p {
 }
 
 .btn-lg {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: var(--radius-lg);
+  padding: 0.9rem 2rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md);
 }
 
 /* Card Container */
@@ -188,8 +217,8 @@ p {
 }
 
 .card-interactive:hover {
-  border-color: var(--color-wine-deep);
-  box-shadow: var(--shadow-md);
+  border-color: var(--color-brand-red-border);
+  box-shadow: 0 6px 20px rgba(198, 40, 40, 0.08);
   transform: translateY(-2px);
 }
 
@@ -204,12 +233,12 @@ p {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--color-border-dark);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-subtle);
+  background: var(--color-brand-red);
 }
 
 /* Custom Range Slider */
@@ -229,7 +258,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--color-wine-deep);
+  background: var(--color-brand-red);
   border: 2px solid var(--color-surface-white);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
@@ -238,7 +267,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  background: var(--color-orange-warm);
+  background: var(--color-brand-red-hover);
 }
 
 /* Printing styles for browser window.print() */

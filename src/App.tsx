@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [printers, setPrinters] = useState<PrinterProfile[]>([]);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [recents, setRecents] = useState<RecentItem[]>([]);
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
 
   // Active Manual Duplex Job awaiting paper flip
   const [duplexActiveJob, setDuplexActiveJob] = useState<PrintJob | null>(null);
@@ -35,22 +35,15 @@ export const App: React.FC = () => {
     setRecents(loadedRecents);
 
     const prefs = StorageService.getPreferences();
-    setTheme(prefs.theme);
+    setTheme(prefs.theme || 'light');
   }, []);
 
-  // Sync theme changes to HTML element
+  // Sync theme changes to HTML element - default to clean Light theme
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-    } else if (theme === 'light') {
-      document.documentElement.removeAttribute('data-theme');
     } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
+      document.documentElement.removeAttribute('data-theme');
     }
   }, [theme]);
 

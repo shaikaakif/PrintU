@@ -29,13 +29,13 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ activeTab, set
       left: 0,
       right: 0,
       height: '62px',
-      background: 'var(--color-wine-dark)',
-      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      background: 'var(--color-surface-white)',
+      borderTop: '1px solid var(--color-border)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
       zIndex: 200,
-      boxShadow: '0 -4px 16px rgba(0,0,0,0.2)'
+      boxShadow: '0 -4px 16px rgba(0,0,0,0.06)'
     }}>
       {items.map(item => {
         const Icon = item.icon;
@@ -47,7 +47,7 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ activeTab, set
             style={{
               background: 'transparent',
               border: 'none',
-              color: isActive ? 'var(--color-orange-warm)' : 'rgba(255, 255, 255, 0.65)',
+              color: isActive ? 'var(--color-brand-red)' : 'var(--color-text-muted)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -59,18 +59,18 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ activeTab, set
             }}
           >
             <Icon size={20} />
-            <span style={{ fontSize: '0.68rem', fontWeight: isActive ? 700 : 400 }}>{item.label}</span>
+            <span style={{ fontSize: '0.68rem', fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
             {item.badge !== undefined && (
               <span style={{
                 position: 'absolute',
                 top: '2px',
                 right: '18%',
-                background: 'var(--color-orange-warm)',
+                background: 'var(--color-brand-red)',
                 color: '#FFF',
                 fontSize: '0.6rem',
-                fontWeight: 700,
-                width: '14px',
-                height: '14px',
+                fontWeight: 800,
+                width: '15px',
+                height: '15px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
