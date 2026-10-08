@@ -36,7 +36,7 @@ export const PhotosWorkflow: React.FC<PhotosWorkflowProps> = ({
     paperSize: 'A4',
     orientation: 'portrait',
     layoutCount: 4,
-    fitMode: 'fill',
+    fitMode: 'fit', // Default strictly to 'fit' (never crop!)
     quality: 'high',
     colorMode: 'color',
     copies: 1,

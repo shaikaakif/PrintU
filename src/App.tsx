@@ -62,6 +62,7 @@ export const App: React.FC = () => {
   const handleSubmitJob = async (job: PrintJob) => {
     const updatedJob: PrintJob = {
       ...job,
+      fitMode: job.fitMode || 'fit',
       status: 'printing'
     };
 
@@ -75,7 +76,7 @@ export const App: React.FC = () => {
       type: job.type,
       date: new Date().toLocaleDateString(),
       itemCount: job.type === 'photo' ? job.photos.length : job.document?.pageCount || 1,
-      jobSnapshot: job
+      jobSnapshot: updatedJob
     };
     StorageService.addRecent(recent);
     setRecents(StorageService.getRecents());
@@ -96,8 +97,8 @@ export const App: React.FC = () => {
       return;
     }
 
-    // Execute System Print
-    PrintExecutor.triggerSystemPrint();
+    // Execute System Print with High-Res DOM Mount
+    await PrintExecutor.executeSystemPrint(updatedJob);
 
     // Mark Completed
     setTimeout(() => {
@@ -118,11 +119,11 @@ export const App: React.FC = () => {
   };
 
   // Confirm Manual Duplex Paper Flip (Continue Side 2)
-  const handleConfirmDuplexFlipped = () => {
+  const handleConfirmDuplexFlipped = async () => {
     if (!duplexActiveJob) return;
 
     // Trigger System Print for Side 2
-    PrintExecutor.triggerSystemPrint();
+    await PrintExecutor.executeSystemPrint(duplexActiveJob);
 
     const completedJob: PrintJob = {
       ...duplexActiveJob,
