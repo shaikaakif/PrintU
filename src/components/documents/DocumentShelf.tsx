@@ -57,6 +57,28 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
     }
   };
 
+  const formatPageRange = (pages: number[], totalPages: number): string => {
+    if (pages.length === 0) return '';
+    if (pages.length === totalPages) return 'All';
+
+    const sorted = [...pages].sort((a, b) => a - b);
+    const ranges: string[] = [];
+    let start = sorted[0];
+    let end = start;
+
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === end + 1) {
+        end = sorted[i];
+      } else {
+        ranges.push(start === end ? `${start}` : `${start}-${end}`);
+        start = sorted[i];
+        end = start;
+      }
+    }
+    ranges.push(start === end ? `${start}` : `${start}-${end}`);
+    return ranges.join(', ');
+  };
+
   const handleCustomPageRange = (text: string) => {
     setPageRangeText(text);
     if (!document) return;
@@ -254,6 +276,8 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
                         } else {
                           newSelected = [...document.selectedPages, thumb.pageNumber].sort((a, b) => a - b);
                         }
+                        const formattedText = formatPageRange(newSelected, document.pageCount);
+                        setPageRangeText(formattedText);
                         onPageRangeChange(newSelected);
                       }}
                       style={{

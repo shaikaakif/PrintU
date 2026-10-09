@@ -85,29 +85,41 @@ export const App: React.FC = () => {
     StorageService.addRecent(recent);
     setRecents(StorageService.getRecents());
 
-    // Check if Manual Duplex is required
-    const pageCount = job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1;
-    if (job.duplexMode === 'manual' && pageCount > 1) {
-      const waitingJob: PrintJob = {
-        ...updatedJob,
-        status: 'waiting_flip',
-        manualDuplexStage: 'side1'
-      };
-      StorageService.saveJob(waitingJob);
-      setJobs(prev => [waitingJob, ...prev.filter(j => j.id !== waitingJob.id)]);
-      setDuplexActiveJob(waitingJob);
-      setIsPrinting(false);
-      return;
-    }
+    const selectedPages = job.type === 'document' && job.document?.selectedPages
+      ? job.document.selectedPages
+      : Array.from({ length: job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1 }, (_, i) => i + 1);
 
-    // Attempt Direct Network Bridge Print (Bypassing window.print())
-    const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob);
+    // Manual Duplex Printing Flow (Side 1: Odd pages -> Flip Prompt -> Side 2: Even pages)
+    if (job.duplexMode === 'manual') {
+      const side1Pages = selectedPages.filter(p => p % 2 !== 0);
+      const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
-    if (bridgeResult.success) {
-      console.log('Direct print successful:', bridgeResult.message);
+      if (side1Pages.length > 0) {
+        console.log('Printing Side 1 (Odd Pages):', side1Pages);
+        const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob, side1Pages);
+        if (!bridgeResult.success) {
+          await PrintExecutor.executeSystemPrint(updatedJob, side1Pages);
+        }
+      }
+
+      if (side2Pages.length > 0) {
+        const waitingJob: PrintJob = {
+          ...updatedJob,
+          status: 'waiting_flip',
+          manualDuplexStage: 'side1'
+        };
+        StorageService.saveJob(waitingJob);
+        setJobs(prev => [waitingJob, ...prev.filter(j => j.id !== waitingJob.id)]);
+        setDuplexActiveJob(waitingJob);
+        setIsPrinting(false);
+        return;
+      }
     } else {
-      console.log('Bridge offline/unreachable, falling back to system print engine');
-      await PrintExecutor.executeSystemPrint(updatedJob);
+      // Single-Sided Printing Pass
+      const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob, selectedPages);
+      if (!bridgeResult.success) {
+        await PrintExecutor.executeSystemPrint(updatedJob, selectedPages);
+      }
     }
 
     setIsPrinting(false);
@@ -127,15 +139,20 @@ export const App: React.FC = () => {
     });
   };
 
-  // Confirm Manual Duplex Paper Flip (Continue Side 2)
+  // Confirm Manual Duplex Paper Flip (Print Side 2: Even Pages)
   const handleConfirmDuplexFlipped = async () => {
     if (!duplexActiveJob) return;
 
     setIsPrinting(true);
-    const bridgeResult = await PrinterBridge.sendDirectPrintJob(duplexActiveJob);
+    const selectedPages = duplexActiveJob.document?.selectedPages || Array.from({ length: duplexActiveJob.document?.pageCount || 1 }, (_, i) => i + 1);
+    const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
-    if (!bridgeResult.success) {
-      await PrintExecutor.executeSystemPrint(duplexActiveJob);
+    if (side2Pages.length > 0) {
+      console.log('Printing Side 2 (Even Pages):', side2Pages);
+      const bridgeResult = await PrinterBridge.sendDirectPrintJob(duplexActiveJob, side2Pages);
+      if (!bridgeResult.success) {
+        await PrintExecutor.executeSystemPrint(duplexActiveJob, side2Pages);
+      }
     }
 
     setIsPrinting(false);

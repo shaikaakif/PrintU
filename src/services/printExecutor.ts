@@ -4,15 +4,60 @@ import { PAPER_DIMENSIONS_MM, PhotoEngine } from './photoEngine';
 
 export const PrintExecutor = {
   // Generates high-resolution data URLs for all pages of a print job
-  async renderJobPagesToDataUrls(job: PrintJob): Promise<string[]> {
+  async renderJobPagesToDataUrls(job: PrintJob, targetPagesOverride?: number[]): Promise<string[]> {
     const pageDataUrls: string[] = [];
     const photosPerPage = job.layoutCount;
-    const totalPages = job.type === 'photo'
-      ? Math.max(1, Math.ceil(job.photos.length / photosPerPage))
-      : job.document?.pageCount || 1;
-
-    // High resolution canvas width for crisp printing (1600px width)
     const printCanvasWidth = 1600;
+
+    if (job.type === 'document' && job.document) {
+      const selectedPages = targetPagesOverride || job.document.selectedPages || Array.from({ length: job.document.pageCount }, (_, i) => i + 1);
+      
+      for (const pageNum of selectedPages) {
+        const { pageWidth, pageHeight } = PhotoEngine.calculatePageCells(
+          1,
+          job.paperSize,
+          job.orientation,
+          0,
+          printCanvasWidth
+        );
+
+        const canvas = document.createElement('canvas');
+        canvas.width = pageWidth;
+        canvas.height = pageHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, pageWidth, pageHeight);
+
+        const renderedPageUrl = job.document.renderedPages?.[pageNum - 1];
+        if (renderedPageUrl) {
+          await new Promise<void>((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              ctx.drawImage(img, 0, 0, pageWidth, pageHeight);
+              resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = renderedPageUrl;
+          });
+        } else {
+          ctx.fillStyle = '#0F172A';
+          ctx.font = 'bold 36px Outfit, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(job.document.name, pageWidth / 2, 100);
+          ctx.font = '24px Outfit, sans-serif';
+          ctx.fillStyle = '#475569';
+          ctx.fillText(`Page ${pageNum} of ${job.document.pageCount}`, pageWidth / 2, 150);
+        }
+
+        pageDataUrls.push(canvas.toDataURL('image/png', 1.0));
+      }
+      return pageDataUrls;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(job.photos.length / photosPerPage));
 
     for (let p = 0; p < totalPages; p++) {
       const { cells, pageWidth, pageHeight } = PhotoEngine.calculatePageCells(
@@ -34,7 +79,7 @@ export const PrintExecutor = {
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, pageWidth, pageHeight);
 
-      if (job.type === 'photo' && job.photos.length > 0) {
+      if (job.photos.length > 0) {
         const pagePhotos = job.photos.slice(p * photosPerPage, (p + 1) * photosPerPage);
         
         // Wait for all images on page to load & render into cell
@@ -55,17 +100,6 @@ export const PrintExecutor = {
         });
 
         await Promise.all(drawPromises);
-      } else if (job.document) {
-        // Document Page Render
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, pageWidth, pageHeight);
-        ctx.fillStyle = '#0F172A';
-        ctx.font = 'bold 36px Outfit, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(job.document.name, pageWidth / 2, 100);
-        ctx.font = '24px Outfit, sans-serif';
-        ctx.fillStyle = '#475569';
-        ctx.fillText(`Page ${p + 1} of ${job.document.pageCount}`, pageWidth / 2, 150);
       }
 
       pageDataUrls.push(canvas.toDataURL('image/png', 1.0));
@@ -75,13 +109,13 @@ export const PrintExecutor = {
   },
 
   // Renders pages into DOM and triggers browser system print (window.print())
-  async executeSystemPrint(job: PrintJob): Promise<void> {
+  async executeSystemPrint(job: PrintJob, targetPagesOverride?: number[]): Promise<void> {
     // Remove existing printable area if present
     const existing = document.getElementById('printu-printable-area');
     if (existing) existing.remove();
 
     // Render high-res pages
-    const pageDataUrls = await this.renderJobPagesToDataUrls(job);
+    const pageDataUrls = await this.renderJobPagesToDataUrls(job, targetPagesOverride);
 
     // Create printable DOM mount
     const printArea = document.createElement('div');

@@ -5,6 +5,7 @@ import { DuplexCalculator, DuplexInstruction } from '../../services/duplexCalcul
 
 interface DuplexWizardModalProps {
   totalPages: number;
+  selectedPages?: number[];
   printer: PrinterProfile;
   onConfirmFlipped: () => void;
   onCancel: () => void;
@@ -12,12 +13,14 @@ interface DuplexWizardModalProps {
 
 export const DuplexWizardModal: React.FC<DuplexWizardModalProps> = ({
   totalPages,
+  selectedPages,
   printer,
   onConfirmFlipped,
   onCancel
 }) => {
   const [hasConfirmedCheckbox, setHasConfirmedCheckbox] = useState<boolean>(false);
-  const plan: DuplexInstruction = DuplexCalculator.calculateDuplexPlan(totalPages, printer);
+  const pagesInput = selectedPages && selectedPages.length > 0 ? selectedPages : totalPages;
+  const plan: DuplexInstruction = DuplexCalculator.calculateDuplexPlan(pagesInput, printer);
 
   return (
     <div style={{
@@ -49,13 +52,15 @@ export const DuplexWizardModal: React.FC<DuplexWizardModalProps> = ({
           textAlign: 'center'
         }}>
           <span style={{ fontSize: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-orange-warm)', fontWeight: 700 }}>
-            Side 1 Completed ({plan.side1Pages.length} sheets printed)
+            Side 1 (Odd Pages: {plan.side1Pages.join(', ') || 'None'}) Printed
           </span>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '0.2rem', color: '#FFF' }}>
-            Flip the Paper
+            Flip Paper & Re-insert Tray
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.25rem' }}>
-            Follow the guide below to print Side 2 accurately
+            {plan.side2Pages.length > 0
+              ? `Next step: Print Side 2 (Even Pages: ${plan.side2Pages.join(', ')})`
+              : 'Manual duplex setup complete'}
           </p>
         </div>
 
@@ -164,7 +169,7 @@ export const DuplexWizardModal: React.FC<DuplexWizardModalProps> = ({
             style={{ opacity: hasConfirmedCheckbox ? 1 : 0.5 }}
           >
             <Check size={18} />
-            <span>Continue Side 2</span>
+            <span>Print Side 2 (Even Pages: {plan.side2Pages.join(', ')})</span>
           </button>
         </div>
       </div>

@@ -26,13 +26,13 @@ export const PrinterBridge = {
   },
 
   // Sends job directly to backend print API bypassing window.print()
-  async sendDirectPrintJob(job: PrintJob): Promise<DirectPrintResponse> {
+  async sendDirectPrintJob(job: PrintJob, targetPagesOverride?: number[]): Promise<DirectPrintResponse> {
     const bridgeUrl = this.getBridgeUrl();
     const printerIp = this.getPrinterIp();
 
     try {
       // Generate high-resolution print pages as PNG/PDF data URLs
-      const pageDataUrls = await PrintExecutor.renderJobPagesToDataUrls(job);
+      const pageDataUrls = await PrintExecutor.renderJobPagesToDataUrls(job, targetPagesOverride);
 
       const response = await fetch(`${bridgeUrl}/api/print`, {
         method: 'POST',

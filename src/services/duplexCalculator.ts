@@ -11,22 +11,20 @@ export interface DuplexInstruction {
 
 export const DuplexCalculator = {
   calculateDuplexPlan(
-    totalPages: number,
+    pagesInput: number | number[],
     printer: PrinterProfile
   ): DuplexInstruction {
-    const totalSheets = Math.ceil(totalPages / 2);
-    
+    const selectedPages = Array.isArray(pagesInput)
+      ? pagesInput
+      : Array.from({ length: pagesInput }, (_, i) => i + 1);
+
     // Side 1 (Odd pages): 1, 3, 5, 7...
-    const side1Pages: number[] = [];
-    for (let p = 1; p <= totalPages; p += 2) {
-      side1Pages.push(p);
-    }
+    const side1Pages = selectedPages.filter(p => p % 2 !== 0);
 
     // Side 2 (Even pages): 2, 4, 6, 8...
-    const side2Pages: number[] = [];
-    for (let p = 2; p <= totalPages; p += 2) {
-      side2Pages.push(p);
-    }
+    const side2Pages = selectedPages.filter(p => p % 2 === 0);
+
+    const totalSheets = Math.max(side1Pages.length, side2Pages.length);
 
     // If printer prints face-down, side 2 may be printed in reverse order so collation aligns
     if (printer.printedSide === 'face-down') {

@@ -70,6 +70,11 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
     { value: 'max', label: 'Maximum Detail' },
   ];
 
+  const duplexOptions = [
+    { value: 'none', label: 'One-Sided (Single Sided)' },
+    { value: 'manual', label: 'Two-Sided (Manual Duplex - Flip Paper)' },
+  ];
+
   const fitModeOptions = [
     { value: 'fit', label: 'Fit (Contain - Zero Cropping)' },
     { value: 'fill', label: 'Fill (Crop to Cell Boundaries)' },
@@ -141,6 +146,14 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
           onChange={val => onChangeJob({ quality: val as PrintQuality })}
         />
       </div>
+
+      {/* Print Sides (Duplex) */}
+      <CustomSelect
+        label="Print Sides (Duplex)"
+        options={duplexOptions}
+        value={job.duplexMode || 'none'}
+        onChange={val => onChangeJob({ duplexMode: val as DuplexMode })}
+      />
 
       {/* Copies Counter */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
