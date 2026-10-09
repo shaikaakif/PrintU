@@ -31,11 +31,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, queuedJ
     }
   };
 
-  const navItems = [
+  interface NavItem {
+    id: string;
+    label: string;
+    icon: any;
+    badge?: number;
+  }
+
+  const navItems: NavItem[] = [
+    { id: 'home', label: 'Home', icon: Printer },
     { id: 'photos', label: 'Photos', icon: Image },
     { id: 'documents', label: 'Documents', icon: FileText },
-    { id: 'quick-print', label: 'Quick Print', icon: Zap },
-    { id: 'queue', label: 'Queue', icon: ListFilter, badge: queuedJobsCount > 0 ? queuedJobsCount : undefined },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -56,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, queuedJ
       {/* Brand Logo & Name */}
       <div 
         className="brand"
-        onClick={() => setActiveTab('photos')}
+        onClick={() => setActiveTab('home')}
         style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
       >
         <img 

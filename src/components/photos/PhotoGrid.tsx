@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Upload, X, Sliders, CheckCircle2 } from 'lucide-react';
+import { Upload, X, Sliders, CheckCircle2, Trash2 } from 'lucide-react';
 import { PhotoItem } from '../../types/print';
 
 interface PhotoGridProps {
@@ -9,6 +9,7 @@ interface PhotoGridProps {
   onToggleSelectPhoto: (id: string) => void;
   onRemovePhoto: (id: string) => void;
   onOpenEditPhoto: (photo: PhotoItem) => void;
+  onClearAllPhotos?: () => void;
 }
 
 export const PhotoGrid: React.FC<PhotoGridProps> = ({
@@ -18,6 +19,7 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({
   onToggleSelectPhoto,
   onRemovePhoto,
   onOpenEditPhoto,
+  onClearAllPhotos
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -88,9 +90,25 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({
             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
               {photos.length} photo{photos.length > 1 ? 's' : ''} imported ({selectedPhotoIds.length} selected)
             </span>
-            <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
-              Tap photo to include in layout
-            </span>
+            <button
+              onClick={onClearAllPhotos ? onClearAllPhotos : () => photos.forEach(p => onRemovePhoto(p.id))}
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                color: '#EF4444',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Trash2 size={13} />
+              <span>Clear All</span>
+            </button>
           </div>
 
           <div style={{

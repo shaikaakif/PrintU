@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Printer, Palette, Cpu, Check, Sliders, RotateCcw } from 'lucide-react';
-import { PrinterProfile, PaperSize, PrintQuality, ColorMode } from '../types/print';
+import { Settings as SettingsIcon, Printer, Palette, Cpu, Check, Sliders, Clock, Image, FileText } from 'lucide-react';
+import { PrinterProfile, PaperSize, PrintQuality, ColorMode, RecentItem } from '../types/print';
 import { PrinterSelector } from '../components/printers/PrinterSelector';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { useDeviceDetect } from '../hooks/useDeviceDetect';
@@ -10,13 +10,17 @@ interface SettingsProps {
   onUpdatePrinters: (printers: PrinterProfile[]) => void;
   theme: 'light' | 'dark' | 'system';
   onChangeTheme: (theme: 'light' | 'dark' | 'system') => void;
+  recentItems?: RecentItem[];
+  onRePrintRecent?: (item: RecentItem) => void;
 }
 
 export const SettingsPage: React.FC<SettingsProps> = ({
   printers,
   onUpdatePrinters,
   theme,
-  onChangeTheme
+  onChangeTheme,
+  recentItems = [],
+  onRePrintRecent
 }) => {
   const { isMobile } = useDeviceDetect();
   const [selectedPrinterId, setSelectedPrinterId] = useState<string>(printers[0]?.id || 'printer-canon-ts');
@@ -53,16 +57,16 @@ export const SettingsPage: React.FC<SettingsProps> = ({
       {/* Header */}
       <div>
         <h2 style={{ fontSize: '1.6rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <SettingsIcon size={24} color="var(--color-wine-deep)" />
-          <span>PrintU Settings</span>
+          <SettingsIcon size={24} color="var(--color-brand-red)" />
+          <span>Settings & Preferences</span>
         </h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
-          Manage your connected printers, manual duplex calibration, and display preferences
+          Manage your default printer, feed calibration, appearance, and view recent print history.
         </p>
       </div>
 
       {/* Printer Management Section */}
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <PrinterSelector
           printers={printers}
           selectedPrinterId={selectedPrinterId}
@@ -102,10 +106,62 @@ export const SettingsPage: React.FC<SettingsProps> = ({
         )}
       </div>
 
-      {/* Appearance & Theme Section */}
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* Recent Print History Section */}
+      <div className="card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Palette size={20} color="var(--color-wine-deep)" />
+          <Clock size={20} color="var(--color-brand-red)" />
+          <span>Recent Tasks & Print History</span>
+        </h3>
+
+        {recentItems.length === 0 ? (
+          <p style={{ fontSize: '0.88rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+            No recent print history found. Your completed jobs will be saved here.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            {recentItems.map(item => (
+              <div
+                key={item.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.6)',
+                  border: '1px solid var(--color-border)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {item.type === 'photo' ? <Image size={18} color="var(--color-brand-red)" /> : <FileText size={18} color="var(--color-orange-warm)" />}
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{item.title}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      {item.itemCount} {item.type === 'photo' ? 'photos' : 'pages'} • {item.date}
+                    </span>
+                  </div>
+                </div>
+
+                {onRePrintRecent && (
+                  <button
+                    onClick={() => onRePrintRecent(item)}
+                    className="btn btn-sm btn-ghost"
+                    style={{ padding: '4px 8px', fontSize: '0.78rem' }}
+                  >
+                    <Printer size={14} />
+                    <span>Re-print</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Appearance & Theme Section */}
+      <div className="card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Palette size={20} color="var(--color-brand-red)" />
           <span>Appearance & Theme</span>
         </h3>
 
@@ -124,9 +180,9 @@ export const SettingsPage: React.FC<SettingsProps> = ({
       </div>
 
       {/* Bridge Diagnostics */}
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Cpu size={20} color="var(--color-wine-deep)" />
+          <Cpu size={20} color="var(--color-brand-red)" />
           <span>Local Print Pipeline Status</span>
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
@@ -139,3 +195,4 @@ export const SettingsPage: React.FC<SettingsProps> = ({
     </div>
   );
 };
+

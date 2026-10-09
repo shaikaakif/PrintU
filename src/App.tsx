@@ -16,7 +16,7 @@ import { PrinterBridge } from './services/printerBridge';
 import { PrintJob, PrinterProfile, RecentItem } from './types/print';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('photos');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [printers, setPrinters] = useState<PrinterProfile[]>([]);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [recents, setRecents] = useState<RecentItem[]>([]);
@@ -161,14 +161,13 @@ export const App: React.FC = () => {
     PrintExecutor.exportPdf(job);
   };
 
-  const handleCancelJob = (jobId: string) => {
-    setJobs(prev =>
-      prev.map(j => (j.id === jobId ? { ...j, status: 'cancelled' } : j))
-    );
-  };
-
   return (
-    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+      {/* Ambient Sunset Aurora Glowing Background Layers */}
+      <div className="aurora-glow-1" />
+      <div className="aurora-glow-2" />
+      <div className="aurora-glow-3" />
+
       {/* Top Header */}
       <Header
         activeTab={activeTab}
@@ -177,16 +176,10 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Router View */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', zIndex: 1 }}>
         {activeTab === 'home' && (
           <Home
             onSelectFlow={flow => setActiveTab(flow)}
-            recentItems={recents}
-            onRePrintRecent={item => {
-              if (item.jobSnapshot) {
-                handleSubmitJob({ ...item.jobSnapshot, id: `job-${Date.now()}` } as PrintJob);
-              }
-            }}
           />
         )}
 
@@ -208,29 +201,18 @@ export const App: React.FC = () => {
           />
         )}
 
-        {activeTab === 'quick-print' && (
-          <QuickPrint
-            printers={printers}
-            onBack={() => setActiveTab('home')}
-            onSubmitJob={handleSubmitJob}
-          />
-        )}
-
-        {activeTab === 'queue' && (
-          <QueuePage
-            jobs={jobs}
-            onRetryJob={handleSubmitJob}
-            onCancelJob={handleCancelJob}
-            onExportPdf={handleExportPdf}
-          />
-        )}
-
         {activeTab === 'settings' && (
           <SettingsPage
             printers={printers}
             onUpdatePrinters={handleUpdatePrinters}
             theme={theme}
             onChangeTheme={handleThemeChange}
+            recentItems={recents}
+            onRePrintRecent={item => {
+              if (item.jobSnapshot) {
+                handleSubmitJob({ ...item.jobSnapshot, id: `job-${Date.now()}` } as PrintJob);
+              }
+            }}
           />
         )}
       </main>

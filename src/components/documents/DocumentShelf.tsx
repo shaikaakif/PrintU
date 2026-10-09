@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { FileUp, FileText, Search, CheckCircle2, Layers } from 'lucide-react';
+import { FileUp, FileText, Search, CheckCircle2, Layers, Trash2 } from 'lucide-react';
 import { DocumentFile } from '../../types/print';
 import { PdfEngine, RenderedPdfPage } from '../../services/pdfEngine';
 
 interface DocumentShelfProps {
   document: DocumentFile | null;
-  onSelectDocument: (doc: DocumentFile) => void;
+  onSelectDocument: (doc: DocumentFile | null) => void;
   onPageRangeChange: (pages: number[]) => void;
 }
 
@@ -19,6 +19,11 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
   const [thumbnails, setThumbnails] = useState<RenderedPdfPage[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageRangeText, setPageRangeText] = useState<string>('All');
+
+  const handleRemoveDocument = () => {
+    setThumbnails([]);
+    onSelectDocument(null);
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,9 +167,32 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
                 {document.pageCount} page{document.pageCount > 1 ? 's' : ''} • {(document.size / (1024 * 1024)).toFixed(2)} MB
               </p>
             </div>
-            <span style={{ fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', padding: '4px 8px', borderRadius: '999px', fontWeight: 600 }}>
-              Ready
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', padding: '4px 8px', borderRadius: '999px', fontWeight: 600 }}>
+                Ready
+              </span>
+              <button
+                onClick={handleRemoveDocument}
+                title="Delete document"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#EF4444',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 150ms ease'
+                }}
+              >
+                <Trash2 size={15} />
+                <span>Remove</span>
+              </button>
+            </div>
           </div>
 
           {/* Page Range Selector */}

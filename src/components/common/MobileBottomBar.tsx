@@ -13,11 +13,17 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ activeTab, set
 
   if (!isMobile) return null;
 
-  const items = [
+  interface NavItem {
+    id: string;
+    label: string;
+    icon: any;
+    badge?: number;
+  }
+
+  const items: NavItem[] = [
+    { id: 'home', label: 'Home', icon: Printer },
     { id: 'photos', label: 'Photos', icon: Image },
     { id: 'documents', label: 'Docs', icon: FileText },
-    { id: 'quick-print', label: 'Quick', icon: Zap },
-    { id: 'queue', label: 'Queue', icon: ListFilter, badge: queuedJobsCount > 0 ? queuedJobsCount : undefined },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

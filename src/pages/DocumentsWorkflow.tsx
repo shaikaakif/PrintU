@@ -41,9 +41,9 @@ export const DocumentsWorkflow: React.FC<DocumentsWorkflowProps> = ({
     createdAt: new Date().toISOString()
   });
 
-  const handleSelectDocument = (doc: DocumentFile) => {
+  const handleSelectDocument = (doc: DocumentFile | null) => {
     setDocument(doc);
-    setJob(prev => ({ ...prev, document: doc, title: doc.name }));
+    setJob(prev => ({ ...prev, document: doc || undefined, title: doc ? doc.name : 'Document Print Job' }));
   };
 
   const handlePageRangeChange = (selectedPages: number[]) => {
