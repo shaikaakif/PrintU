@@ -11,28 +11,28 @@ const STORAGE_KEYS = {
 // Default Built-in Printers
 export const DEFAULT_PRINTERS: PrinterProfile[] = [
   {
-    id: 'printer-system',
-    name: 'System Default Printer',
-    model: 'System Printer / PDF Service',
-    connection: 'system',
+    id: 'printer-canon-ts',
+    name: 'Canon TS3370s',
+    model: 'Canon PIXMA TS3300 Series',
+    connection: 'wifi',
     status: 'ready',
     isDefault: true,
     supportsColor: true,
-    supportsAutoDuplex: true,
+    supportsAutoDuplex: false, // Manual duplex signature printer!
     supportsBorderless: true,
     feedOrientation: 'top-first',
     printedSide: 'face-up',
     calibrated: true,
   },
   {
-    id: 'printer-canon-ts',
-    name: 'Canon TS3370s',
-    model: 'Canon PIXMA TS3300 Series',
-    connection: 'wifi',
+    id: 'printer-system',
+    name: 'System Default Printer',
+    model: 'System Printer / PDF Service',
+    connection: 'system',
     status: 'ready',
     isDefault: false,
     supportsColor: true,
-    supportsAutoDuplex: false, // Manual duplex signature printer!
+    supportsAutoDuplex: true,
     supportsBorderless: true,
     feedOrientation: 'top-first',
     printedSide: 'face-up',
@@ -192,9 +192,9 @@ export const StorageService = {
   getPreferences(): { theme: 'light' | 'dark' | 'system'; defaultPrinterId: string } {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-      return data ? JSON.parse(data) : { theme: 'light', defaultPrinterId: 'printer-system' };
+      return data ? JSON.parse(data) : { theme: 'light', defaultPrinterId: 'printer-canon-ts' };
     } catch {
-      return { theme: 'light', defaultPrinterId: 'printer-system' };
+      return { theme: 'light', defaultPrinterId: 'printer-canon-ts' };
     }
   },
 

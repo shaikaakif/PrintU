@@ -32,7 +32,6 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, queuedJ
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Printer },
     { id: 'photos', label: 'Photos', icon: Image },
     { id: 'documents', label: 'Documents', icon: FileText },
     { id: 'quick-print', label: 'Quick Print', icon: Zap },
@@ -57,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, queuedJ
       {/* Brand Logo & Name */}
       <div 
         className="brand"
-        onClick={() => setActiveTab('home')}
+        onClick={() => setActiveTab('photos')}
         style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
       >
         <img 

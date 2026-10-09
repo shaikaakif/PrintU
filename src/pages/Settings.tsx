@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, Printer, Palette, Cpu, Check, Sliders, RotateCcw } from 'lucide-react';
 import { PrinterProfile, PaperSize, PrintQuality, ColorMode } from '../types/print';
 import { PrinterSelector } from '../components/printers/PrinterSelector';
+import { CustomSelect } from '../components/common/CustomSelect';
 import { useDeviceDetect } from '../hooks/useDeviceDetect';
 
 interface SettingsProps {
@@ -18,7 +19,7 @@ export const SettingsPage: React.FC<SettingsProps> = ({
   onChangeTheme
 }) => {
   const { isMobile } = useDeviceDetect();
-  const [selectedPrinterId, setSelectedPrinterId] = useState<string>(printers[0]?.id || 'printer-system');
+  const [selectedPrinterId, setSelectedPrinterId] = useState<string>(printers[0]?.id || 'printer-canon-ts');
 
   const selectedPrinter = printers.find(p => p.id === selectedPrinterId);
 
@@ -28,6 +29,16 @@ export const SettingsPage: React.FC<SettingsProps> = ({
     );
     onUpdatePrinters(updatedPrinters);
   };
+
+  const feedOrientationOptions = [
+    { value: 'top-first', label: 'Top edge feeds first' },
+    { value: 'bottom-first', label: 'Bottom edge feeds first' },
+  ];
+
+  const printedSideOptions = [
+    { value: 'face-up', label: 'Printed side faces UP' },
+    { value: 'face-down', label: 'Printed side faces DOWN' },
+  ];
 
   return (
     <div style={{
@@ -73,43 +84,19 @@ export const SettingsPage: React.FC<SettingsProps> = ({
             </h4>
 
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
-              <div>
-                <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>Paper Tray Feed Direction</label>
-                <select
-                  value={selectedPrinter.feedOrientation}
-                  onChange={e => handleUpdateSelectedPrinter({ feedOrientation: e.target.value as any })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--color-border)',
-                    marginTop: '4px',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  <option value="top-first">Top edge feeds first</option>
-                  <option value="bottom-first">Bottom edge feeds first</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Paper Tray Feed Direction"
+                options={feedOrientationOptions}
+                value={selectedPrinter.feedOrientation}
+                onChange={val => handleUpdateSelectedPrinter({ feedOrientation: val as any })}
+              />
 
-              <div>
-                <label style={{ fontSize: '0.82rem', fontWeight: 600 }}>Output Tray Side</label>
-                <select
-                  value={selectedPrinter.printedSide}
-                  onChange={e => handleUpdateSelectedPrinter({ printedSide: e.target.value as any })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--color-border)',
-                    marginTop: '4px',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  <option value="face-up">Printed side faces UP</option>
-                  <option value="face-down">Printed side faces DOWN</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Output Tray Side"
+                options={printedSideOptions}
+                value={selectedPrinter.printedSide}
+                onChange={val => handleUpdateSelectedPrinter({ printedSide: val as any })}
+              />
             </div>
           </div>
         )}

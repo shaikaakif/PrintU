@@ -27,7 +27,7 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
     setLoading(true);
     try {
       const pageCount = await PdfEngine.getPageCount(file);
-      const thumbs = await PdfEngine.renderAllThumbnails(file, 20, 0.25);
+      const thumbs = await PdfEngine.renderAllThumbnails(file, 20, 1.2);
       setThumbnails(thumbs);
 
       const allPages = Array.from({ length: pageCount }, (_, i) => i + 1);
@@ -39,7 +39,8 @@ export const DocumentShelf: React.FC<DocumentShelfProps> = ({
         type: file.type,
         dataUrl: URL.createObjectURL(file),
         pageCount,
-        selectedPages: allPages
+        selectedPages: allPages,
+        renderedPages: thumbs.map(t => t.dataUrl)
       };
 
       onSelectDocument(newDoc);

@@ -16,7 +16,7 @@ import { PrinterBridge } from './services/printerBridge';
 import { PrintJob, PrinterProfile, RecentItem } from './types/print';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>('photos');
   const [printers, setPrinters] = useState<PrinterProfile[]>([]);
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [recents, setRecents] = useState<RecentItem[]>([]);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Printer, Sliders, ChevronDown, ChevronUp, Wifi, Check, Loader2, Globe } from 'lucide-react';
 import { PrintJob, PrinterProfile, PaperSize, Orientation, PrintQuality, ColorMode, DuplexMode, FitMode } from '../../types/print';
 import { PrinterBridge } from '../../services/printerBridge';
+import { CustomSelect } from '../common/CustomSelect';
 
 interface PrintOptionsPanelProps {
   job: PrintJob;
@@ -36,6 +37,45 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
     PrinterBridge.setBridgeUrl(url);
   };
 
+  const printerOptions = printers.map(p => ({
+    value: p.id,
+    label: p.name,
+    sublabel: p.connection === 'wifi' ? 'Direct Silent Wi-Fi' : 'System Print Engine',
+    icon: Printer
+  }));
+
+  const paperSizeOptions = [
+    { value: 'A4', label: 'A4 Sheet (210 × 297 mm)' },
+    { value: 'A5', label: 'A5 Sheet (148 × 210 mm)' },
+    { value: 'Letter', label: 'Letter (8.5 × 11 in)' },
+    { value: '4x6', label: '4 × 6 Inch Photo Paper' },
+    { value: '5x7', label: '5 × 7 Inch Photo Paper' },
+  ];
+
+  const orientationOptions = [
+    { value: 'portrait', label: 'Portrait' },
+    { value: 'landscape', label: 'Landscape' },
+    { value: 'auto', label: 'Auto Detect' },
+  ];
+
+  const colorModeOptions = [
+    { value: 'color', label: 'Full Color' },
+    { value: 'grayscale', label: 'Grayscale / Black & White' },
+  ];
+
+  const qualityOptions = [
+    { value: 'draft', label: 'Fast Draft' },
+    { value: 'standard', label: 'Standard Quality' },
+    { value: 'high', label: 'High Quality' },
+    { value: 'max', label: 'Maximum Detail' },
+  ];
+
+  const fitModeOptions = [
+    { value: 'fit', label: 'Fit (Contain - Zero Cropping)' },
+    { value: 'fill', label: 'Fill (Crop to Cell Boundaries)' },
+    { value: 'original', label: 'Original Aspect Ratio' },
+  ];
+
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -44,28 +84,12 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
       </h3>
 
       {/* Printer Selection */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-        <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Destination Printer</label>
-        <select
-          value={job.printerId}
-          onChange={e => onChangeJob({ printerId: e.target.value })}
-          style={{
-            padding: '0.65rem 0.85rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            fontSize: '0.9rem',
-            fontWeight: 500,
-            background: 'var(--color-surface-white)',
-            outline: 'none'
-          }}
-        >
-          {printers.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.name} {p.connection === 'wifi' ? '(Direct Wi-Fi)' : '(System)'}
-            </option>
-          ))}
-        </select>
-      </div>
+      <CustomSelect
+        label="Destination Printer"
+        options={printerOptions}
+        value={job.printerId}
+        onChange={val => onChangeJob({ printerId: val })}
+      />
 
       {/* Wi-Fi Printer Target IP Address */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -86,58 +110,36 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
 
       {/* Paper Size & Orientation */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Paper Size</label>
-          <select
-            value={job.paperSize}
-            onChange={e => onChangeJob({ paperSize: e.target.value as PaperSize })}
-          >
-            <option value="A4">A4 Sheet</option>
-            <option value="A5">A5 Sheet</option>
-            <option value="Letter">Letter</option>
-            <option value="4x6">4 × 6 Inch</option>
-            <option value="5x7">5 × 7 Inch</option>
-          </select>
-        </div>
+        <CustomSelect
+          label="Paper Size"
+          options={paperSizeOptions}
+          value={job.paperSize}
+          onChange={val => onChangeJob({ paperSize: val as PaperSize })}
+        />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Orientation</label>
-          <select
-            value={job.orientation}
-            onChange={e => onChangeJob({ orientation: e.target.value as Orientation })}
-          >
-            <option value="portrait">Portrait</option>
-            <option value="landscape">Landscape</option>
-            <option value="auto">Auto</option>
-          </select>
-        </div>
+        <CustomSelect
+          label="Orientation"
+          options={orientationOptions}
+          value={job.orientation}
+          onChange={val => onChangeJob({ orientation: val as Orientation })}
+        />
       </div>
 
       {/* Color Mode & Quality */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Color Mode</label>
-          <select
-            value={job.colorMode}
-            onChange={e => onChangeJob({ colorMode: e.target.value as ColorMode })}
-          >
-            <option value="color">Full Color</option>
-            <option value="grayscale">Grayscale / Black & White</option>
-          </select>
-        </div>
+        <CustomSelect
+          label="Color Mode"
+          options={colorModeOptions}
+          value={job.colorMode}
+          onChange={val => onChangeJob({ colorMode: val as ColorMode })}
+        />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Quality</label>
-          <select
-            value={job.quality}
-            onChange={e => onChangeJob({ quality: e.target.value as PrintQuality })}
-          >
-            <option value="draft">Fast Draft</option>
-            <option value="standard">Standard</option>
-            <option value="high">High Quality</option>
-            <option value="max">Maximum Detail</option>
-          </select>
-        </div>
+        <CustomSelect
+          label="Quality"
+          options={qualityOptions}
+          value={job.quality}
+          onChange={val => onChangeJob({ quality: val as PrintQuality })}
+        />
       </div>
 
       {/* Copies Counter */}
@@ -198,18 +200,12 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
             />
           </div>
 
-          <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Image Fit Mode</label>
-            <select
-              value={job.fitMode || 'fit'}
-              onChange={e => onChangeJob({ fitMode: e.target.value as FitMode })}
-              style={{ width: '100%', marginTop: '4px' }}
-            >
-              <option value="fit">Fit (Contain - Zero Cropping)</option>
-              <option value="fill">Fill (Crop to Cell Boundaries)</option>
-              <option value="original">Original Aspect Ratio</option>
-            </select>
-          </div>
+          <CustomSelect
+            label="Image Fit Mode"
+            options={fitModeOptions}
+            value={job.fitMode || 'fit'}
+            onChange={val => onChangeJob({ fitMode: val as FitMode })}
+          />
         </div>
       )}
 

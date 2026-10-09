@@ -35,6 +35,7 @@ export interface DocumentFile {
   dataUrl: string;
   pageCount: number;
   selectedPages: number[]; // e.g. [1, 2, 3] (1-indexed)
+  renderedPages?: string[]; // High-res dataUrl array for each page
 }
 
 export interface PrinterProfile {

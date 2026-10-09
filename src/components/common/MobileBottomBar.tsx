@@ -14,7 +14,6 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ activeTab, set
   if (!isMobile) return null;
 
   const items = [
-    { id: 'home', label: 'Home', icon: Printer },
     { id: 'photos', label: 'Photos', icon: Image },
     { id: 'documents', label: 'Docs', icon: FileText },
     { id: 'quick-print', label: 'Quick', icon: Zap },

@@ -63,16 +63,54 @@ export const PrintPreviewCanvas: React.FC<PrintPreviewCanvasProps> = ({ job }) =
         }
       });
     } else if (job.document) {
-      // Document Page Render Placeholder
-      ctx.fillStyle = '#FAF5F6';
-      ctx.fillRect(20, 20, pageWidth - 40, pageHeight - 40);
-      ctx.fillStyle = 'var(--color-text-main)';
-      ctx.font = 'bold 16px Outfit, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`Document: ${job.document.name}`, pageWidth / 2, pageHeight / 2 - 10);
-      ctx.font = '14px Outfit, sans-serif';
-      ctx.fillStyle = 'var(--color-text-muted)';
-      ctx.fillText(`Page ${activePageIndex + 1} of ${job.document.pageCount}`, pageWidth / 2, pageHeight / 2 + 15);
+      const pageDataUrl = job.document.renderedPages?.[activePageIndex];
+      if (pageDataUrl) {
+        const img = new Image();
+        img.onload = () => {
+          // Draw clean paper background
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, pageWidth, pageHeight);
+
+          // Draw margins guide
+          ctx.strokeStyle = 'rgba(84, 24, 39, 0.12)';
+          ctx.setLineDash([4, 4]);
+          ctx.strokeRect(10, 10, pageWidth - 20, pageHeight - 20);
+          ctx.setLineDash([]);
+
+          // Center and fit document page image inside margins
+          const targetW = pageWidth - 20;
+          const targetH = pageHeight - 20;
+          const imgAspect = img.width / img.height;
+          const targetAspect = targetW / targetH;
+
+          let drawW = targetW;
+          let drawH = targetH;
+          let drawX = 10;
+          let drawY = 10;
+
+          if (imgAspect > targetAspect) {
+            drawH = targetW / imgAspect;
+            drawY = 10 + (targetH - drawH) / 2;
+          } else {
+            drawW = targetH * imgAspect;
+            drawX = 10 + (targetW - drawW) / 2;
+          }
+
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+        };
+        img.src = pageDataUrl;
+      } else {
+        // Fallback document info text if page rendering
+        ctx.fillStyle = '#FAF5F6';
+        ctx.fillRect(20, 20, pageWidth - 40, pageHeight - 40);
+        ctx.fillStyle = 'var(--color-text-main)';
+        ctx.font = 'bold 16px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Document: ${job.document.name}`, pageWidth / 2, pageHeight / 2 - 10);
+        ctx.font = '14px Outfit, sans-serif';
+        ctx.fillStyle = 'var(--color-text-muted)';
+        ctx.fillText(`Page ${activePageIndex + 1} of ${job.document.pageCount}`, pageWidth / 2, pageHeight / 2 + 15);
+      }
     }
   }, [job, activePageIndex, isMobile, photosPerPage]);
 
