@@ -211,7 +211,7 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
               type="text"
               value={bridgeUrl}
               onChange={e => handleBridgeUrlChange(e.target.value)}
-              placeholder="http://localhost:3001 or Cloudflare Tunnel URL"
+              placeholder="https://printu.satvnews.in"
               style={{ width: '100%', marginTop: '4px' }}
             />
           </div>

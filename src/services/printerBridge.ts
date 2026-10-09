@@ -10,7 +10,7 @@ export interface DirectPrintResponse {
 export const PrinterBridge = {
   // Get stored Bridge URL (e.g., Cloudflare Tunnel URL or Local Bridge Endpoint)
   getBridgeUrl(): string {
-    return localStorage.getItem('printu_bridge_url') || 'http://localhost:3001';
+    return localStorage.getItem('printu_bridge_url') || 'https://printu.satvnews.in';
   },
 
   setBridgeUrl(url: string): void {
