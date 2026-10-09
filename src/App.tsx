@@ -109,7 +109,7 @@ export const App: React.FC = () => {
         const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob, side1Pages);
         if (!bridgeResult.success) {
           setPrintStep('fallback');
-          setPrintMessage('Direct network bridge offline — Launching System Print Engine...');
+          setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
           await PrintExecutor.executeSystemPrint(updatedJob, side1Pages);
         }
       }
@@ -135,7 +135,7 @@ export const App: React.FC = () => {
         setPrintMessage('Print job delivered directly to Canon TS3370s printer tray!');
       } else {
         setPrintStep('fallback');
-        setPrintMessage('Direct network bridge offline — Launching System Print Engine...');
+        setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
         await PrintExecutor.executeSystemPrint(updatedJob, selectedPages);
       }
     }
