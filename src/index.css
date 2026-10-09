@@ -43,6 +43,10 @@
   --radius-lg: 16px;
   --radius-full: 9999px;
 
+  /* Safe Area Tokens (Mobile Notches & Home Bars) */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -80,6 +84,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
 }
 
 #root {
@@ -116,7 +122,7 @@ p {
   min-width: 0;
 }
 
-/* Form Controls (Select & Inputs) */
+/* Form Controls (Select & Inputs - Mobile Touch & Keyboard Viewport Safety) */
 select, input[type="text"], input[type="number"] {
   background-color: var(--color-surface-white) !important;
   color: var(--color-text-main) !important;
@@ -124,10 +130,11 @@ select, input[type="text"], input[type="number"] {
   border-radius: var(--radius-md) !important;
   padding: 0.65rem 0.85rem !important;
   font-family: var(--font-primary) !important;
-  font-size: 0.9rem !important;
+  font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
   outline: none !important;
   min-height: 44px !important; /* Touch target safety */
   max-width: 100% !important;
+  touch-action: manipulation !important;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast) !important;
 }
 
