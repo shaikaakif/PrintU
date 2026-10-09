@@ -88,15 +88,32 @@ html, body {
   flex-direction: column;
 }
 
+/* Defensive Text Truncation & Wrapping Utilities */
+.truncate-text {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.break-text {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+}
+
 /* Typography Utilities */
 h1, h2, h3, h4, h5, h6 {
   color: var(--color-text-main);
   font-weight: 700;
   letter-spacing: -0.02em;
+  min-width: 0;
 }
 
 p {
   color: var(--color-text-muted);
+  min-width: 0;
 }
 
 /* Form Controls (Select & Inputs) */
@@ -109,6 +126,8 @@ select, input[type="text"], input[type="number"] {
   font-family: var(--font-primary) !important;
   font-size: 0.9rem !important;
   outline: none !important;
+  min-height: 44px !important; /* Touch target safety */
+  max-width: 100% !important;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast) !important;
 }
 
@@ -117,13 +136,14 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15) !important;
 }
 
-/* Buttons */
+/* Buttons (Apple Design Touch Target: min 44x44px & Instant Feedback) */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
+  min-height: 44px; /* Touch target safety */
   font-family: var(--font-primary);
   font-size: 0.95rem;
   font-weight: 600;
@@ -134,6 +154,11 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   user-select: none;
   touch-action: manipulation;
   text-decoration: none;
+  max-width: 100%;
+}
+
+.btn:active {
+  transform: scale(0.97) !important; /* Instant tactile feedback */
 }
 
 /* Primary Red Button */
@@ -150,11 +175,7 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   transform: translateY(-1px);
 }
 
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Secondary Button with Subtle Red Outline */
+/* Secondary Button */
 .btn-secondary {
   background: var(--color-surface-white);
   color: var(--color-text-main);
@@ -193,12 +214,14 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
 .btn-sm {
   padding: 0.4rem 0.85rem;
   font-size: 0.85rem;
+  min-height: 38px;
   border-radius: var(--radius-sm);
 }
 
 .btn-lg {
   padding: 0.9rem 2rem;
   font-size: 1.05rem;
+  min-height: 48px;
   border-radius: var(--radius-md);
 }
 
@@ -209,6 +232,8 @@ select:focus, input[type="text"]:focus, input[type="number"]:focus {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  max-width: 100%;
   transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
 }
 
@@ -255,8 +280,8 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-brand-red);
   border: 2px solid var(--color-surface-white);
