@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Header } from './components/common/Header';
 import { MobileBottomBar } from './components/common/MobileBottomBar';
+import { PwaInstallBanner } from './components/common/PwaInstallBanner';
 import { Home } from './pages/Home';
 import { PhotosWorkflow } from './pages/PhotosWorkflow';
 import { DocumentsWorkflow } from './pages/DocumentsWorkflow';
@@ -11,6 +12,7 @@ import { QueuePage } from './pages/Queue';
 import { DuplexWizardModal } from './components/duplex/DuplexWizardModal';
 import { StorageService, DEFAULT_PRINTERS } from './services/storage';
 import { PrintExecutor } from './services/printExecutor';
+import { PrinterBridge } from './services/printerBridge';
 import { PrintJob, PrinterProfile, RecentItem } from './types/print';
 
 export const App: React.FC = () => {
@@ -19,6 +21,7 @@ export const App: React.FC = () => {
   const [jobs, setJobs] = useState<PrintJob[]>([]);
   const [recents, setRecents] = useState<RecentItem[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
 
   // Active Manual Duplex Job awaiting paper flip
   const [duplexActiveJob, setDuplexActiveJob] = useState<PrintJob | null>(null);
@@ -38,7 +41,7 @@ export const App: React.FC = () => {
     setTheme(prefs.theme || 'light');
   }, []);
 
-  // Sync theme changes to HTML element - default to clean Light theme
+  // Sync theme changes to HTML element
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -58,8 +61,9 @@ export const App: React.FC = () => {
     StorageService.savePreferences({ ...prefs, theme: newTheme });
   };
 
-  // Submit & Execute Print Job Pipeline
+  // Submit & Execute Direct Silent Print Job Pipeline
   const handleSubmitJob = async (job: PrintJob) => {
+    setIsPrinting(true);
     const updatedJob: PrintJob = {
       ...job,
       fitMode: job.fitMode || 'fit',
@@ -81,11 +85,9 @@ export const App: React.FC = () => {
     StorageService.addRecent(recent);
     setRecents(StorageService.getRecents());
 
-    // Check if Manual Duplex is required (e.g. document > 1 page or duplex mode manual)
+    // Check if Manual Duplex is required
     const pageCount = job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1;
-    
     if (job.duplexMode === 'manual' && pageCount > 1) {
-      // Trigger Manual Duplex Flip Wizard
       const waitingJob: PrintJob = {
         ...updatedJob,
         status: 'waiting_flip',
@@ -94,36 +96,49 @@ export const App: React.FC = () => {
       StorageService.saveJob(waitingJob);
       setJobs(prev => [waitingJob, ...prev.filter(j => j.id !== waitingJob.id)]);
       setDuplexActiveJob(waitingJob);
+      setIsPrinting(false);
       return;
     }
 
-    // Execute System Print with High-Res DOM Mount
-    await PrintExecutor.executeSystemPrint(updatedJob);
+    // Attempt Direct Network Bridge Print (Bypassing window.print())
+    const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob);
+
+    if (bridgeResult.success) {
+      console.log('Direct print successful:', bridgeResult.message);
+    } else {
+      console.log('Bridge offline/unreachable, falling back to system print engine');
+      await PrintExecutor.executeSystemPrint(updatedJob);
+    }
+
+    setIsPrinting(false);
 
     // Mark Completed
-    setTimeout(() => {
-      const completedJob: PrintJob = {
-        ...updatedJob,
-        status: 'completed'
-      };
-      StorageService.saveJob(completedJob);
-      setJobs(prev => [completedJob, ...prev.filter(j => j.id !== completedJob.id)]);
+    const completedJob: PrintJob = {
+      ...updatedJob,
+      status: 'completed'
+    };
+    StorageService.saveJob(completedJob);
+    setJobs(prev => [completedJob, ...prev.filter(j => j.id !== completedJob.id)]);
 
-      // Confetti feedback
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.8 }
-      });
-    }, 1200);
+    confetti({
+      particleCount: 60,
+      spread: 70,
+      origin: { y: 0.8 }
+    });
   };
 
   // Confirm Manual Duplex Paper Flip (Continue Side 2)
   const handleConfirmDuplexFlipped = async () => {
     if (!duplexActiveJob) return;
 
-    // Trigger System Print for Side 2
-    await PrintExecutor.executeSystemPrint(duplexActiveJob);
+    setIsPrinting(true);
+    const bridgeResult = await PrinterBridge.sendDirectPrintJob(duplexActiveJob);
+
+    if (!bridgeResult.success) {
+      await PrintExecutor.executeSystemPrint(duplexActiveJob);
+    }
+
+    setIsPrinting(false);
 
     const completedJob: PrintJob = {
       ...duplexActiveJob,
@@ -136,7 +151,7 @@ export const App: React.FC = () => {
     setDuplexActiveJob(null);
 
     confetti({
-      particleCount: 70,
+      particleCount: 80,
       spread: 80,
       origin: { y: 0.7 }
     });
@@ -226,6 +241,9 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         queuedJobsCount={jobs.filter(j => j.status === 'printing' || j.status === 'waiting_flip').length}
       />
+
+      {/* Apple-style PWA Installation Banner */}
+      <PwaInstallBanner />
 
       {/* Manual Duplex Flipping Wizard Modal */}
       {duplexActiveJob && (
