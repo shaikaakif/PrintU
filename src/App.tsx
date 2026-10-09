@@ -95,10 +95,12 @@ export const App: React.FC = () => {
       ? job.document.selectedPages
       : Array.from({ length: job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1 }, (_, i) => i + 1);
 
-    // Lightning-fast instant execution
-    setPrintStep('printing');
-    setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
-    await new Promise(r => setTimeout(r, 150));
+    // Direct Silent Print Dispatch
+    setPrintStep('connecting');
+    setPrintMessage('Connecting & sending payload silently to Canon TS3370s...');
+
+    let bridgeSuccess = true;
+    let bridgeErrorMessage = '';
 
     // Manual Duplex Printing Flow (Side 1: Odd pages -> Flip Prompt -> Side 2: Even pages)
     if (job.duplexMode === 'manual') {
@@ -106,10 +108,14 @@ export const App: React.FC = () => {
       const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
       if (side1Pages.length > 0) {
-        await PrintExecutor.executeSystemPrint(updatedJob, side1Pages);
+        const result = await PrinterBridge.sendDirectPrintJob(updatedJob, side1Pages);
+        if (!result.success) {
+          bridgeSuccess = false;
+          bridgeErrorMessage = result.message || 'Printer Bridge Offline — Ensure local bridge server is running on PC.';
+        }
       }
 
-      if (side2Pages.length > 0) {
+      if (bridgeSuccess && side2Pages.length > 0) {
         const waitingJob: PrintJob = {
           ...updatedJob,
           status: 'waiting_flip',
@@ -123,14 +129,24 @@ export const App: React.FC = () => {
         return;
       }
     } else {
-      // Single-Sided Instant Print
-      await PrintExecutor.executeSystemPrint(updatedJob, selectedPages);
+      // Single-Sided Silent Print Pass
+      const result = await PrinterBridge.sendDirectPrintJob(updatedJob, selectedPages);
+      if (!result.success) {
+        bridgeSuccess = false;
+        bridgeErrorMessage = result.message || 'Printer Bridge Offline — Ensure printer is powered on and bridge is connected.';
+      }
+    }
+
+    setIsPrinting(false);
+
+    if (!bridgeSuccess) {
+      setPrintStep('error');
+      setPrintMessage(bridgeErrorMessage);
+      return;
     }
 
     setPrintStep('success');
-    setPrintMessage('Print job sent successfully!');
-
-    setIsPrinting(false);
+    setPrintMessage('Print job delivered silently to Canon TS3370s printer tray!');
 
     // Mark Completed
     const completedJob: PrintJob = {
@@ -162,13 +178,27 @@ export const App: React.FC = () => {
     const selectedPages = duplexActiveJob.document?.selectedPages || Array.from({ length: duplexActiveJob.document?.pageCount || 1 }, (_, i) => i + 1);
     const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
+    let duplexSuccess = true;
+    let duplexErrorMessage = '';
+
     if (side2Pages.length > 0) {
-      await PrintExecutor.executeSystemPrint(duplexActiveJob, side2Pages);
-      setPrintStep('success');
-      setPrintMessage('Side 2 (Even Pages) print dialog opened successfully!');
+      const result = await PrinterBridge.sendDirectPrintJob(duplexActiveJob, side2Pages);
+      if (!result.success) {
+        duplexSuccess = false;
+        duplexErrorMessage = result.message || 'Printer Bridge Offline — Ensure printer is powered on and bridge is connected.';
+      }
     }
 
     setIsPrinting(false);
+
+    if (!duplexSuccess) {
+      setPrintStep('error');
+      setPrintMessage(duplexErrorMessage);
+      return;
+    }
+
+    setPrintStep('success');
+    setPrintMessage('Side 2 (Even Pages) delivered silently to printer tray!');
 
     const completedJob: PrintJob = {
       ...duplexActiveJob,

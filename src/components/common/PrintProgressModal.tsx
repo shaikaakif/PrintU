@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, Loader2, CheckCircle2, AlertTriangle, Wifi, Sparkles, Zap } from 'lucide-react';
+import { Printer, Loader2, CheckCircle2, AlertTriangle, Wifi, Sparkles, XCircle, RefreshCw } from 'lucide-react';
 
-export type PrintStep = 'idle' | 'rendering' | 'connecting' | 'printing' | 'success' | 'fallback';
+export type PrintStep = 'idle' | 'rendering' | 'connecting' | 'printing' | 'success' | 'fallback' | 'error';
 
 interface PrintProgressModalProps {
   step: PrintStep;
@@ -38,6 +38,7 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
 
   const isSuccess = step === 'success';
   const isFallback = step === 'fallback';
+  const isError = step === 'error';
 
   return (
     <div style={{
@@ -86,8 +87,8 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
             borderRadius: '50%',
             background: isSuccess
               ? 'radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, rgba(16, 185, 129, 0) 70%)'
-              : isFallback
-                ? 'radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0) 70%)'
+              : isError
+                ? 'radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, rgba(239, 68, 68, 0) 70%)'
                 : 'radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, rgba(220, 38, 38, 0) 70%)',
             animation: 'breathingPulse 1.8s infinite ease-in-out'
           }} />
@@ -99,8 +100,8 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
             borderRadius: '50%',
             background: isSuccess
               ? 'linear-gradient(135deg, #10B981, #059669)'
-              : isFallback
-                ? 'linear-gradient(135deg, #F59E0B, #D97706)'
+              : isError
+                ? 'linear-gradient(135deg, #EF4444, #B91C1C)'
                 : 'linear-gradient(135deg, #EF4444, #DC2626)',
             color: '#FFFFFF',
             display: 'flex',
@@ -108,17 +109,17 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
             justifyContent: 'center',
             boxShadow: isSuccess
               ? '0 10px 25px rgba(16, 185, 129, 0.4)'
-              : isFallback
-                ? '0 10px 25px rgba(245, 158, 11, 0.4)'
+              : isError
+                ? '0 10px 25px rgba(239, 68, 68, 0.4)'
                 : '0 10px 25px rgba(220, 38, 38, 0.4)',
             zIndex: 2,
             position: 'relative',
-            animation: !isSuccess && !isFallback ? 'printerBreathing 1.5s infinite ease-in-out' : 'none'
+            animation: !isSuccess && !isError ? 'printerBreathing 1.5s infinite ease-in-out' : 'none'
           }}>
             {isSuccess ? (
               <CheckCircle2 size={42} style={{ animation: 'popIn 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
-            ) : isFallback ? (
-              <Zap size={38} style={{ animation: 'bounceSlow 1.5s infinite' }} />
+            ) : isError ? (
+              <XCircle size={42} style={{ animation: 'popIn 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
             ) : (
               <>
                 <Printer size={36} />
@@ -142,7 +143,7 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
           <h3 style={{
             fontSize: '1.35rem',
             fontWeight: 800,
-            color: '#0F172A',
+            color: isError ? '#991B1B' : '#0F172A',
             letterSpacing: '-0.02em',
             display: 'flex',
             alignItems: 'center',
@@ -152,17 +153,17 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
             <span>
               {isSuccess
                 ? 'Print Job Sent!'
-                : isFallback
-                  ? 'Launching Print Engine'
-                  : 'Processing Print Job'}
+                : isError
+                  ? 'Silent Print Failed'
+                  : 'Processing Silent Print'}
             </span>
-            {!isSuccess && !isFallback && <AnimatedDots />}
+            {!isSuccess && !isError && <AnimatedDots />}
           </h3>
 
           {/* Subtitle / Status Message */}
           <p style={{
             fontSize: '0.92rem',
-            color: '#475569',
+            color: isError ? '#7F1D1D' : '#475569',
             marginTop: '0.4rem',
             lineHeight: 1.45,
             fontWeight: 500,
@@ -173,7 +174,7 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
         </div>
 
         {/* Real-Time Step Progress Card */}
-        {!isSuccess && !isFallback && (
+        {!isSuccess && !isError && (
           <div style={{
             width: '100%',
             background: 'rgba(248, 250, 252, 0.9)',
@@ -214,52 +215,79 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
               ) : (
                 <CheckCircle2 size={16} />
               )}
-              <span>1. Preparing & Rendering Document Pages</span>
+              <span>1. Preparing Document Layout</span>
             </div>
 
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              color: step === 'connecting' ? '#DC2626' : step === 'printing' ? '#10B981' : '#94A3B8',
+              color: step === 'connecting' || step === 'printing' ? '#DC2626' : '#94A3B8',
               fontWeight: 700
             }}>
-              {step === 'connecting' ? (
+              {step === 'connecting' || step === 'printing' ? (
                 <Loader2 size={16} style={{ animation: 'spinFast 600ms linear infinite' }} />
-              ) : step === 'printing' ? (
-                <CheckCircle2 size={16} />
               ) : (
                 <Wifi size={16} />
               )}
-              <span>2. Connecting to Wireless Printer ({printerName})</span>
+              <span>2. Direct Silent Dispatch ({printerName})</span>
             </div>
           </div>
         )}
 
-        {/* Target Printer Badge with Breathing Pulsing Dot */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: 'rgba(239, 68, 68, 0.08)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          padding: '6px 14px',
-          borderRadius: '999px',
-          fontSize: '0.8rem',
-          fontWeight: 700,
-          color: '#DC2626',
-          boxShadow: '0 2px 8px rgba(220, 38, 38, 0.08)'
-        }}>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#DC2626',
-            animation: 'breathingDot 1.2s infinite ease-in-out'
-          }} />
-          <Sparkles size={13} />
-          <span>Printer: {printerName}</span>
-        </div>
+        {/* Error Dismiss / Retry Button */}
+        {isError && onClose && (
+          <button
+            onClick={onClose}
+            style={{
+              width: '100%',
+              padding: '0.75rem 1.25rem',
+              borderRadius: '14px',
+              background: '#DC2626',
+              color: '#FFFFFF',
+              border: 'none',
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+              transition: 'transform 150ms ease'
+            }}
+          >
+            <RefreshCw size={16} />
+            <span>Close & Try Again</span>
+          </button>
+        )}
+
+        {/* Target Printer Badge */}
+        {!isError && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            padding: '6px 14px',
+            borderRadius: '999px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: '#DC2626',
+            boxShadow: '0 2px 8px rgba(220, 38, 38, 0.08)'
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#DC2626',
+              animation: 'breathingDot 1.2s infinite ease-in-out'
+            }} />
+            <Sparkles size={13} />
+            <span>Printer: {printerName}</span>
+          </div>
+        )}
       </div>
 
       {/* Embedded CSS Animations */}
@@ -288,10 +316,6 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
         @keyframes breathingDot {
           0%, 100% { opacity: 0.3; transform: scale(0.8); }
           50% { opacity: 1; transform: scale(1.2); }
-        }
-        @keyframes bounceSlow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
         }
         @keyframes popIn {
           0% { transform: scale(0.5); opacity: 0; }
