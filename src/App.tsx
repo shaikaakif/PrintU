@@ -95,10 +95,10 @@ export const App: React.FC = () => {
       ? job.document.selectedPages
       : Array.from({ length: job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1 }, (_, i) => i + 1);
 
-    // Lightning-fast delay for instant visual feedback
-    await new Promise(r => setTimeout(r, 120));
-    setPrintStep('connecting');
-    setPrintMessage('Sending print payload to Canon TS3370s printer bridge...');
+    // Lightning-fast instant execution
+    setPrintStep('printing');
+    setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
+    await new Promise(r => setTimeout(r, 150));
 
     // Manual Duplex Printing Flow (Side 1: Odd pages -> Flip Prompt -> Side 2: Even pages)
     if (job.duplexMode === 'manual') {
@@ -106,12 +106,7 @@ export const App: React.FC = () => {
       const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
       if (side1Pages.length > 0) {
-        const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob, side1Pages);
-        if (!bridgeResult.success) {
-          setPrintStep('fallback');
-          setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
-          await PrintExecutor.executeSystemPrint(updatedJob, side1Pages);
-        }
+        await PrintExecutor.executeSystemPrint(updatedJob, side1Pages);
       }
 
       if (side2Pages.length > 0) {
@@ -128,17 +123,12 @@ export const App: React.FC = () => {
         return;
       }
     } else {
-      // Single-Sided Printing Pass
-      const bridgeResult = await PrinterBridge.sendDirectPrintJob(updatedJob, selectedPages);
-      if (bridgeResult.success) {
-        setPrintStep('success');
-        setPrintMessage('Print job delivered directly to Canon TS3370s printer tray!');
-      } else {
-        setPrintStep('fallback');
-        setPrintMessage('Opening wireless print dialog for Canon TS3370s...');
-        await PrintExecutor.executeSystemPrint(updatedJob, selectedPages);
-      }
+      // Single-Sided Instant Print
+      await PrintExecutor.executeSystemPrint(updatedJob, selectedPages);
     }
+
+    setPrintStep('success');
+    setPrintMessage('Print job sent successfully!');
 
     setIsPrinting(false);
 
@@ -173,15 +163,9 @@ export const App: React.FC = () => {
     const side2Pages = selectedPages.filter(p => p % 2 === 0);
 
     if (side2Pages.length > 0) {
-      const bridgeResult = await PrinterBridge.sendDirectPrintJob(duplexActiveJob, side2Pages);
-      if (bridgeResult.success) {
-        setPrintStep('success');
-        setPrintMessage('Side 2 (Even Pages) delivered successfully to printer!');
-      } else {
-        setPrintStep('fallback');
-        setPrintMessage('Bridge offline — Launching System Print Engine for Side 2...');
-        await PrintExecutor.executeSystemPrint(duplexActiveJob, side2Pages);
-      }
+      await PrintExecutor.executeSystemPrint(duplexActiveJob, side2Pages);
+      setPrintStep('success');
+      setPrintMessage('Side 2 (Even Pages) print dialog opened successfully!');
     }
 
     setIsPrinting(false);
