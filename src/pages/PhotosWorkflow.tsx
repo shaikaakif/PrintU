@@ -140,15 +140,22 @@ export const PhotosWorkflow: React.FC<PhotosWorkflowProps> = ({
           {/* Photos per page diagram selection */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Choose Layout (Photos per Page)</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.65rem',
+              overflowX: 'auto',
+              paddingBottom: '0.35rem',
+              WebkitOverflowScrolling: 'touch'
+            }}>
               {layoutOptions.map(cnt => (
-                <VisualDiagram
-                  key={cnt}
-                  count={cnt}
-                  orientation={job.orientation}
-                  selected={job.layoutCount === cnt}
-                  onClick={() => setJob(prev => ({ ...prev, layoutCount: cnt }))}
-                />
+                <div key={cnt} style={{ flex: isMobile ? '0 0 auto' : 1, minWidth: '76px' }}>
+                  <VisualDiagram
+                    count={cnt}
+                    orientation={job.orientation}
+                    selected={job.layoutCount === cnt}
+                    onClick={() => setJob(prev => ({ ...prev, layoutCount: cnt }))}
+                  />
+                </div>
               ))}
             </div>
           </div>

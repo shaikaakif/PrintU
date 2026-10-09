@@ -89,17 +89,17 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             )}
             <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <span style={{ 
-                fontSize: '0.92rem', 
+                fontSize: '0.88rem', 
                 fontWeight: 600, 
                 color: '#0F172A',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                whiteSpace: 'normal',
+                wordBreak: 'break-word',
+                lineHeight: '1.25'
               }}>
                 {selectedOption ? selectedOption.label : placeholder}
               </span>
               {selectedOption?.sublabel && (
-                <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
                   {selectedOption.sublabel}
                 </span>
               )}

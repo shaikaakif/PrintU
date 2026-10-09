@@ -3,6 +3,7 @@ import { Printer, Sliders, ChevronDown, ChevronUp, Wifi, Check, Loader2, Globe }
 import { PrintJob, PrinterProfile, PaperSize, Orientation, PrintQuality, ColorMode, DuplexMode, FitMode } from '../../types/print';
 import { PrinterBridge } from '../../services/printerBridge';
 import { CustomSelect } from '../common/CustomSelect';
+import { useDeviceDetect } from '../../hooks/useDeviceDetect';
 
 interface PrintOptionsPanelProps {
   job: PrintJob;
@@ -24,6 +25,8 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
   const [printerIp, setPrinterIpState] = useState<string>(PrinterBridge.getPrinterIp());
   const [bridgeUrl, setBridgeUrlState] = useState<string>(PrinterBridge.getBridgeUrl());
+
+  const { isMobile } = useDeviceDetect();
 
   const selectedPrinter = printers.find(p => p.id === job.printerId) || printers[0];
 
@@ -114,7 +117,7 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
       </div>
 
       {/* Paper Size & Orientation */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
         <CustomSelect
           label="Paper Size"
           options={paperSizeOptions}
@@ -131,7 +134,7 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
       </div>
 
       {/* Color Mode & Quality */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
         <CustomSelect
           label="Color Mode"
           options={colorModeOptions}
@@ -228,16 +231,27 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
           disabled={isPrinting}
           onClick={onStartPrint}
           className="btn btn-primary btn-lg"
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            textAlign: 'center',
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+            lineHeight: '1.25',
+            padding: '0.85rem 1rem'
+          }}
         >
           {isPrinting ? (
             <>
-              <Loader2 size={20} className="animate-spin" />
+              <Loader2 size={20} className="animate-spin" style={{ flexShrink: 0 }} />
               <span>Sending directly to Printer...</span>
             </>
           ) : (
             <>
-              <Printer size={22} />
+              <Printer size={22} style={{ flexShrink: 0 }} />
               <span>Direct Print (No Dialog Box)</span>
             </>
           )}
@@ -246,7 +260,17 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
         <button
           onClick={onExportPdf}
           className="btn btn-secondary btn-sm"
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.4rem',
+            textAlign: 'center',
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+            padding: '0.6rem 0.85rem'
+          }}
         >
           <span>Save / Export Print-Ready PDF</span>
         </button>

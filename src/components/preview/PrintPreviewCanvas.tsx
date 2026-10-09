@@ -24,7 +24,7 @@ export const PrintPreviewCanvas: React.FC<PrintPreviewCanvasProps> = ({ job }) =
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const containerW = isMobile ? 320 : 540;
+    const containerW = isMobile ? Math.min(window.innerWidth - 56, 420) : 540;
     const { cells, pageWidth, pageHeight } = PhotoEngine.calculatePageCells(
       photosPerPage,
       job.paperSize,
@@ -41,7 +41,7 @@ export const PrintPreviewCanvas: React.FC<PrintPreviewCanvasProps> = ({ job }) =
     ctx.fillRect(0, 0, pageWidth, pageHeight);
 
     // Draw Paper Margin Boundary Guide Line
-    ctx.strokeStyle = 'rgba(84, 24, 39, 0.12)';
+    ctx.strokeStyle = 'rgba(198, 40, 40, 0.15)';
     ctx.setLineDash([4, 4]);
     ctx.strokeRect(10, 10, pageWidth - 20, pageHeight - 20);
     ctx.setLineDash([]);
@@ -72,7 +72,7 @@ export const PrintPreviewCanvas: React.FC<PrintPreviewCanvasProps> = ({ job }) =
           ctx.fillRect(0, 0, pageWidth, pageHeight);
 
           // Draw margins guide
-          ctx.strokeStyle = 'rgba(84, 24, 39, 0.12)';
+          ctx.strokeStyle = 'rgba(198, 40, 40, 0.15)';
           ctx.setLineDash([4, 4]);
           ctx.strokeRect(10, 10, pageWidth - 20, pageHeight - 20);
           ctx.setLineDash([]);
@@ -124,24 +124,30 @@ export const PrintPreviewCanvas: React.FC<PrintPreviewCanvasProps> = ({ job }) =
     }}>
       {/* Paper Sheet Preview Container */}
       <div style={{
-        background: '#1A1214',
-        padding: '1.5rem',
+        background: 'rgba(255, 255, 255, 0.65)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(226, 232, 240, 0.9)',
+        padding: isMobile ? '1rem 0.5rem' : '1.75rem 1.25rem',
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-lg)',
+        boxShadow: '0 10px 30px -5px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.02)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        {/* Paper Canvas */}
+        {/* Floating Real Paper Canvas */}
         <canvas
           ref={canvasRef}
           style={{
             maxWidth: '100%',
             height: 'auto',
             borderRadius: '4px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)'
+            boxShadow: '0 12px 36px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06)',
+            background: '#FFFFFF',
+            transition: 'all 200ms ease'
           }}
         />
       </div>
