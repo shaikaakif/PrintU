@@ -252,7 +252,7 @@ export const PrintOptionsPanel: React.FC<PrintOptionsPanelProps> = ({
           ) : (
             <>
               <Printer size={22} style={{ flexShrink: 0 }} />
-              <span>Direct Print (No Dialog Box)</span>
+              <span>PRINT</span>
             </>
           )}
         </button>
