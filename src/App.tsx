@@ -95,8 +95,8 @@ export const App: React.FC = () => {
       ? job.document.selectedPages
       : Array.from({ length: job.type === 'photo' ? Math.ceil(job.photos.length / job.layoutCount) : job.document?.pageCount || 1 }, (_, i) => i + 1);
 
-    // Brief delay to allow rendering indicator to be seen
-    await new Promise(r => setTimeout(r, 400));
+    // Lightning-fast delay for instant visual feedback
+    await new Promise(r => setTimeout(r, 120));
     setPrintStep('connecting');
     setPrintMessage('Sending print payload to Canon TS3370s printer bridge...');
 

@@ -34,11 +34,15 @@ export const PrinterBridge = {
       // Generate high-resolution print pages as PNG/PDF data URLs
       const pageDataUrls = await PrintExecutor.renderJobPagesToDataUrls(job, targetPagesOverride);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 600);
+
       const response = await fetch(`${bridgeUrl}/api/print`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           jobId: job.id,
           title: job.title,
@@ -50,6 +54,8 @@ export const PrinterBridge = {
           quality: job.quality,
         }),
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Printer bridge returned HTTP status ${response.status}`);

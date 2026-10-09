@@ -1,5 +1,5 @@
-import React from 'react';
-import { Printer, Loader2, CheckCircle2, AlertTriangle, Wifi, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Printer, Loader2, CheckCircle2, AlertTriangle, Wifi, Sparkles, Zap } from 'lucide-react';
 
 export type PrintStep = 'idle' | 'rendering' | 'connecting' | 'printing' | 'success' | 'fallback';
 
@@ -9,6 +9,24 @@ interface PrintProgressModalProps {
   printerName?: string;
   onClose?: () => void;
 }
+
+// Animated Dot Ellipsis Component (. -> .. -> ...)
+const AnimatedDots: React.FC = () => {
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev >= 3 ? 1 : prev + 1));
+    }, 320);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span style={{ display: 'inline-block', width: '20px', textAlign: 'left', fontWeight: 700 }}>
+      {'.'.repeat(dotCount)}
+    </span>
+  );
+};
 
 export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
   step,
@@ -25,132 +43,263 @@ export const PrintProgressModal: React.FC<PrintProgressModalProps> = ({
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
+      background: 'rgba(11, 17, 32, 0.82)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 9999,
       padding: '1.25rem',
-      animation: 'fadeIn 200ms ease'
+      animation: 'fadeInModal 220ms ease-out'
     }}>
       <div style={{
-        background: '#FFFFFF',
-        borderRadius: '24px',
-        padding: '2rem 1.75rem',
-        maxWidth: '420px',
+        background: 'linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%)',
+        borderRadius: '28px',
+        padding: '2.25rem 2rem',
+        maxWidth: '430px',
         width: '100%',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        boxShadow: '0 30px 60px -15px rgba(0, 0, 0, 0.35), 0 0 40px rgba(220, 38, 38, 0.12)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
         gap: '1.25rem',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        border: '1px solid rgba(226, 232, 240, 0.8)'
       }}>
-        {/* Animated Icon Ring */}
+
+        {/* Breathing Glow Outer Ring */}
         <div style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: '50%',
-          background: isSuccess 
-            ? 'rgba(16, 185, 129, 0.12)' 
-            : isFallback 
-              ? 'rgba(245, 158, 11, 0.12)' 
-              : 'rgba(198, 40, 40, 0.1)',
-          color: isSuccess 
-            ? '#10B981' 
-            : isFallback 
-              ? '#F59E0B' 
-              : 'var(--color-brand-red)',
+          position: 'relative',
+          width: '84px',
+          height: '84px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative'
+          justifyContent: 'center'
         }}>
-          {isSuccess ? (
-            <CheckCircle2 size={38} className="animate-bounce" />
-          ) : isFallback ? (
-            <AlertTriangle size={36} />
-          ) : (
-            <>
-              <Printer size={34} />
-              <Loader2 
-                size={72} 
-                className="animate-spin" 
-                style={{ 
-                  position: 'absolute', 
-                  inset: 0, 
-                  opacity: 0.6,
-                  color: 'var(--color-brand-red)' 
-                }} 
-              />
-            </>
-          )}
+          {/* Pulsing Aura */}
+          <div style={{
+            position: 'absolute',
+            inset: -6,
+            borderRadius: '50%',
+            background: isSuccess
+              ? 'radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, rgba(16, 185, 129, 0) 70%)'
+              : isFallback
+                ? 'radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0) 70%)'
+                : 'radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, rgba(220, 38, 38, 0) 70%)',
+            animation: 'breathingPulse 1.8s infinite ease-in-out'
+          }} />
+
+          {/* Central Icon Circle */}
+          <div style={{
+            width: '76px',
+            height: '76px',
+            borderRadius: '50%',
+            background: isSuccess
+              ? 'linear-gradient(135deg, #10B981, #059669)'
+              : isFallback
+                ? 'linear-gradient(135deg, #F59E0B, #D97706)'
+                : 'linear-gradient(135deg, #EF4444, #DC2626)',
+            color: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: isSuccess
+              ? '0 10px 25px rgba(16, 185, 129, 0.4)'
+              : isFallback
+                ? '0 10px 25px rgba(245, 158, 11, 0.4)'
+                : '0 10px 25px rgba(220, 38, 38, 0.4)',
+            zIndex: 2,
+            position: 'relative',
+            animation: !isSuccess && !isFallback ? 'printerBreathing 1.5s infinite ease-in-out' : 'none'
+          }}>
+            {isSuccess ? (
+              <CheckCircle2 size={42} style={{ animation: 'popIn 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
+            ) : isFallback ? (
+              <Zap size={38} style={{ animation: 'bounceSlow 1.5s infinite' }} />
+            ) : (
+              <>
+                <Printer size={36} />
+                <Loader2
+                  size={84}
+                  style={{
+                    position: 'absolute',
+                    inset: -4,
+                    opacity: 0.7,
+                    color: 'rgba(255, 255, 255, 0.95)',
+                    animation: 'spinFast 800ms linear infinite'
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Title & Status Message */}
+        {/* Dynamic Title with Animated Ellipsis */}
         <div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A' }}>
-            {isSuccess 
-              ? 'Print Job Sent Successfully!' 
-              : isFallback 
-                ? 'Opening System Print Engine' 
-                : 'Processing Print Job'}
+          <h3 style={{
+            fontSize: '1.35rem',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px'
+          }}>
+            <span>
+              {isSuccess
+                ? 'Print Job Sent!'
+                : isFallback
+                  ? 'Launching Print Engine'
+                  : 'Processing Print Job'}
+            </span>
+            {!isSuccess && !isFallback && <AnimatedDots />}
           </h3>
-          <p style={{ fontSize: '0.9rem', color: '#475569', marginTop: '0.35rem', lineHeight: 1.4 }}>
-            {message || 'Communicating with printer hardware...'}
+
+          {/* Subtitle / Status Message */}
+          <p style={{
+            fontSize: '0.92rem',
+            color: '#475569',
+            marginTop: '0.4rem',
+            lineHeight: 1.45,
+            fontWeight: 500,
+            animation: 'fadeInText 300ms ease'
+          }}>
+            {message || 'Formatting high-resolution pages for printer...'}
           </p>
         </div>
 
-        {/* Real-Time Progress Steps Indicator */}
+        {/* Real-Time Step Progress Card */}
         {!isSuccess && !isFallback && (
           <div style={{
             width: '100%',
-            background: '#F8FAFC',
-            padding: '0.85rem 1rem',
-            borderRadius: '12px',
+            background: 'rgba(248, 250, 252, 0.9)',
+            padding: '1rem 1.15rem',
+            borderRadius: '16px',
             border: '1px solid #E2E8F0',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.5rem',
-            fontSize: '0.8rem',
-            textAlign: 'left'
+            gap: '0.65rem',
+            fontSize: '0.84rem',
+            textAlign: 'left',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: step === 'rendering' ? 'var(--color-brand-red)' : '#10B981', fontWeight: 600 }}>
-              {step === 'rendering' ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+            {/* Animated Laser Scanner Sweep Line */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              height: '3px',
+              width: '40%',
+              background: 'linear-gradient(90deg, transparent, #EF4444, #DC2626, transparent)',
+              animation: 'laserScan 1.2s infinite ease-in-out',
+              borderRadius: '999px',
+              boxShadow: '0 0 8px #EF4444'
+            }} />
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              color: step === 'rendering' ? '#DC2626' : '#10B981',
+              fontWeight: 700
+            }}>
+              {step === 'rendering' ? (
+                <Loader2 size={16} style={{ animation: 'spinFast 600ms linear infinite' }} />
+              ) : (
+                <CheckCircle2 size={16} />
+              )}
               <span>1. Preparing & Rendering Document Pages</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: step === 'connecting' ? 'var(--color-brand-red)' : step === 'printing' ? '#10B981' : '#94A3B8', fontWeight: 600 }}>
-              {step === 'connecting' ? <Loader2 size={14} className="animate-spin" /> : step === 'printing' ? <CheckCircle2 size={14} /> : <Wifi size={14} />}
-              <span>2. Connecting to Printer Bridge ({printerName})</span>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              color: step === 'connecting' ? '#DC2626' : step === 'printing' ? '#10B981' : '#94A3B8',
+              fontWeight: 700
+            }}>
+              {step === 'connecting' ? (
+                <Loader2 size={16} style={{ animation: 'spinFast 600ms linear infinite' }} />
+              ) : step === 'printing' ? (
+                <CheckCircle2 size={16} />
+              ) : (
+                <Wifi size={16} />
+              )}
+              <span>2. Connecting to Wireless Printer ({printerName})</span>
             </div>
           </div>
         )}
 
-        {/* Target Printer Badge */}
+        {/* Target Printer Badge with Breathing Pulsing Dot */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '6px',
-          background: 'rgba(198, 40, 40, 0.08)',
-          padding: '4px 12px',
+          gap: '8px',
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          padding: '6px 14px',
           borderRadius: '999px',
-          fontSize: '0.78rem',
+          fontSize: '0.8rem',
           fontWeight: 700,
-          color: 'var(--color-brand-red)'
+          color: '#DC2626',
+          boxShadow: '0 2px 8px rgba(220, 38, 38, 0.08)'
         }}>
-          <Wifi size={13} />
-          <span>Target: {printerName}</span>
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#DC2626',
+            animation: 'breathingDot 1.2s infinite ease-in-out'
+          }} />
+          <Sparkles size={13} />
+          <span>Printer: {printerName}</span>
         </div>
       </div>
 
+      {/* Embedded CSS Animations */}
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to { opacity: 1; transform: scale(1); }
+        @keyframes fadeInModal {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes breathingPulse {
+          0%, 100% { transform: scale(0.92); opacity: 0.5; }
+          50% { transform: scale(1.15); opacity: 0.95; }
+        }
+        @keyframes printerBreathing {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.06); }
+        }
+        @keyframes laserScan {
+          0% { left: -40%; }
+          50% { left: 100%; }
+          100% { left: -40%; }
+        }
+        @keyframes spinFast {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes breathingDot {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes bounceSlow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes popIn {
+          0% { transform: scale(0.5); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeInText {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
